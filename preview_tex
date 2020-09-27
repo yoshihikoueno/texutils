@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# This module will compile and show the result
+# of the latex file.
+# Note that the result pdf will be opened only if
+# the compiling was successful.
+#
+# If makefile is available and ignore_makefile is not set,
+# this module will just call make.
+#
+# Usage:
+#     preview_tex <TEX file> [<ignore_makefile>]
+
+[[ $2 == "ignore_makefile" ]]
+ignore_makefile=$?
+pdf=$(echo $1|perl -pe 's/\.tex/.pdf/g');
+nlo=$(echo $1|perl -pe 's/\.tex/.nlo/g');
+nls=$(echo $1|perl -pe 's/\.tex/.nls/g');
+name=$(echo $1|perl -pe 's/\.tex//g');
+basename=$(echo $name|perl -pe 's/\/.*\///g');
+
+
+# If makefile available, follow it
+if [[ -a Makefile ]] && (( $ignore_makefile != 0 )) ; then
+    echo Makefile found. Calling make command
+    make $pdf;
+else
+    if [[ -a $name.bib ]]; then
+        echo bib file found. compiling it.
+        echo name: $name
+        bibtex $basename && makeindex $basename.nlo -s nomencl.ist -o $nls
+    else
+        echo $name.bib not found;
+    fi
+    pdflatex $1 || exit;
+    echo "checking: ps aux | grep evince | grep $pdf"
+    if ps aux | grep evince | grep $pdf ; then
+        echo Found evince is already there;
+    else
+        evince $pdf;
+        echo Launched evince
+    fi
+fi
