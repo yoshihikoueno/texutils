@@ -23,7 +23,7 @@ basename=$(echo $name|perl -pe 's/\/.*\///g');
 # If makefile available, follow it
 if [[ -a Makefile ]] && (( $ignore_makefile != 0 )) ; then
     echo Makefile found. Calling make command
-    make $pdf;
+    make $(basename $pdf);
 else
     if [[ -a $name.bib ]]; then
         echo bib file found. compiling it.
