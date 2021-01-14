@@ -28,10 +28,11 @@ else
     if [[ -a $name.bib ]]; then
         echo bib file found. compiling it.
         echo name: $name
-        bibtex $basename && makeindex $basename.nlo -s nomencl.ist -o $nls
+        bibtex $basename
     else
         echo $name.bib not found;
     fi
+    makeindex $basename.nlo -s nomencl.ist -o $nls
     pdflatex $1 || exit;
     echo "checking: ps aux | grep evince | grep $pdf"
     if ps aux | grep evince | grep $pdf ; then
